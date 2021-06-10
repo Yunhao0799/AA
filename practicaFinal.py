@@ -27,12 +27,11 @@ def readData(archivo):
     datos = pd.read_csv(archivo, delim_whitespace=True, header=None)
     d = np.array(datos)
 
-    df = DataFrame(d, columns=['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD', 'TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV'])
     # Separamos los datos en los conjuntos X e Y
     X = d[:,:-1]
     Y = d[:, -1]
 
-    return X, Y, df
+    return X, Y
 
 
 
@@ -92,11 +91,11 @@ def hyper_parameter_tuning_lineal_model(x_train, y_train):
 
 # Lectura de datos
 
-X, Y, datos_df= readData('data/housing.data')
+X, Y= readData('data/housing.data')
 
 # %%
 
-print(datos_df)
+
 # %%
 # print("X:", X)
 # print("Y:", Y)
@@ -104,7 +103,11 @@ print(datos_df)
 # PARTICION: 70% train, 30% test
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=2)
 
-
+d = np.insert(X_train, X_train.shape[1], Y_train, axis=1)
+df = DataFrame(d, columns=['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD', 'TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV'])
+print(df.head(5))
+print("[...]")
+print(df.tail(5))
 
 
 # Eliminar los outliers o datos extremos 
@@ -130,6 +133,8 @@ X_test = scaler.transform(X_test)
 
 # Búsqueda de los mejores parámetros para regresión lineal
 df = hyper_parameter_tuning_lineal_model(x_train=X_train, y_train=Y_train)
+print("\n\n\n")
+print("Mostrando los mejores parámetros de regresión lineal, con y sin penalización")
 print(df)
 
 # %%
@@ -139,8 +144,11 @@ clf.fit(X_train, Y_train)
 y_predicted = clf.predict(X_train)
 
 # Metrica de la bondad de los resultados dentro de la muestra
+print("\n#################################################")
+print(  "##        Linear Regression(L2 penalty)        ##")
+print(  "#################################################")
 print("Dentro de la muestra")
-print("MSE:", mean_squared_error(y_true=Y_train, y_pred=y_predicted))
+print("RMSE:", np.sqrt(mean_squared_error(y_true=Y_train, y_pred=y_predicted)))
 r2 = r2_score(y_true=Y_train, y_pred=y_predicted)
 adj_r2 = (1 - (1 - r2) * ((X_train.shape[0] - 1) / (X_train.shape[0] - X_train.shape[1] - 1)))
 print("R2:",r2)
@@ -152,13 +160,18 @@ print("R2 ajustado:",adj_r2)
 print("\nFuera de la muestra")
 # clf.fit(x_test, y_test)
 y_predicted = clf.predict(X_test)
-print("MSE:", mean_squared_error(y_true=Y_test, y_pred=y_predicted))
+print("RMSE:", np.sqrt(mean_squared_error(y_true=Y_test, y_pred=y_predicted)))
 r2 = r2_score(y_true=Y_test, y_pred=y_predicted)
 adj_r2 = (1 - (1 - r2) * ((X_test.shape[0] - 1) / (X_test.shape[0] - X_test.shape[1] - 1)))
 print("R2:",r2)
 print("R2 ajustado:",adj_r2)
 
 
+
+
+
+
+# %%
 print("\n#################################################")
 print("##            Multilayer Perceptron            ##")
 print("#################################################")
@@ -166,14 +179,18 @@ print("#################################################")
 MLP = MLPRegressor(max_iter=1000, learning_rate_init=0.01, alpha=0.001, solver='sgd')
 MLP.fit(X_train, Y_train)
 
+print("Dentro de la muestra")
 Y_pred = MLP.predict(X_train)
 ein = np.sqrt( mean_squared_error(Y_train, Y_pred) )
-print("\nEin: ", ein)
+print("\nRMSE: ", ein)
 
+print("Fuera de la muestra")
 Y_pred = MLP.predict(X_test)
 eout = np.sqrt( mean_squared_error(Y_test, Y_pred) )
-print("Eout: ", eout)
+print("RMSE: ", eout)
 
-scores = np.sqrt( cross_val_score(MLP, X, Y, cv=5, scoring=metrics.make_scorer(mean_squared_error)) )
+scores = np.sqrt( abs(cross_val_score(MLP, X_train, Y_train, cv=5, scoring='neg_mean_squared_error') ) )
 print("Validacion: ", scores)
 print("Eval: ", np.mean(scores))
+
+# %%
