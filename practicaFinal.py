@@ -8,6 +8,8 @@ import pandas as pd
 from pandas.core.frame import DataFrame
 from scipy.sparse.construct import random
 from scipy import stats
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
@@ -104,10 +106,19 @@ X, Y= readData('data/housing.data')
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=2)
 
 d = np.insert(X_train, X_train.shape[1], Y_train, axis=1)
-df = DataFrame(d, columns=['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD', 'TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV'])
+nombre_columnas = ['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD', 'TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV']
+df = DataFrame(d, columns=nombre_columnas)
+# Mostrando las 5 primeras y las 5 ultimas entradas
 print(df.head(5))
 print("[...]")
 print(df.tail(5))
+
+# Correlation matrix
+
+df = pd.DataFrame(d, columns = nombre_columnas)
+correlation_matrix = df.corr()
+sns.heatmap(correlation_matrix, annot=False)
+plt.show()
 
 
 # Eliminar los outliers o datos extremos 
