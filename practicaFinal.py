@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from pandas.core.frame import DataFrame
 from scipy.sparse.construct import random
+from scipy import stats
 
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
@@ -100,18 +101,18 @@ X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_
 
 
 
-# # Eliminar los outliers o datos extremos 
-# print("Samples antes de eliminar outliers: ", X_train.shape[0])
-# arr = np.append(x_train, y_train.reshape(-1, 1), axis=1)
-# df = DataFrame(arr)
-# z_scores = stats.zscore(df)
-# abs_z_scores = np.abs(z_scores)
-# filtered_entries = (abs_z_scores < 3).all(axis=1)
-# df = df[filtered_entries]
-# data = np.array(df)
-# x_train = data[:,:-1]
-# y_train = data[:,-1]
-# print("Samples después de eliminar outliers: ", x_train.shape[0])
+# Eliminar los outliers o datos extremos 
+print("Samples antes de eliminar outliers: ", X_train.shape[0])
+arr = np.append(X_train, Y_train.reshape(-1, 1), axis=1)
+df = DataFrame(arr)
+z_scores = stats.zscore(df)
+abs_z_scores = np.abs(z_scores)
+filtered_entries = (abs_z_scores < 3).all(axis=1)
+df = df[filtered_entries]
+data = np.array(df)
+X_train = data[:,:-1]
+Y_train = data[:,-1]
+print("Samples después de eliminar outliers: ", X_train.shape[0])
 
 
 # Estandarizacion de los datos usando el StandardScaler
