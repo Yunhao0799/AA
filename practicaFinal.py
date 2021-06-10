@@ -91,6 +91,35 @@ def hyper_parameter_tuning_lineal_model(x_train, y_train):
     return df
 
 
+def hyper_parameter_tuning_mlp(x_train, y_train):
+    # --------------------------- Hyper parameter Tuning ---------------------------
+    models_parameters = {
+        'MLP':{
+            'model': MLPRegressor(),
+            'parameters': {
+                # Total de neuro
+                # 'hidden_layer_sizes' : [[14, 14, 14], [14, 8, 4], [7, 7, 7], [4, 8, 14]],
+                'hidden_layer_sizes' : [[50, 50], [25,25] ,[18,18], [16, 16], [16, 8],[14, 14], [14, 7], [7, 7], [4, 8], [8, 4], [7, 14]],
+                'alpha':[9,8,7, 6, 5, 3, 2, 1, 0.1, 0.01, 0.0001],
+                'learning_rate_init':[0.001, 0.01]
+            }
+        }
+    } 
+
+    scores = []
+    for model_name, mp in models_parameters.items():
+        clf = GridSearchCV(mp['model'], mp['parameters'], cv=5, return_train_score=False, n_jobs=-1, scoring='r2')
+        clf.fit(x_train, y_train)
+        scores.append({
+            'model' : model_name,
+            'best_score' : clf.best_score_,
+            'best_parameters': clf.best_params_
+        })
+
+
+    df = DataFrame(scores, columns=["model", "best_score", "best_parameters"])
+    return df
+
 # Lectura de datos
 
 X, Y= readData('data/housing.data')
@@ -186,11 +215,18 @@ print("R2 ajustado:",adj_r2)
 print("\n#################################################")
 print("##            Multilayer Perceptron            ##")
 print("#################################################")
+
+print("Búsqueda de los mejores hiperparámetros")
+res = hyper_parameter_tuning_mlp(X_train, Y_train)
+print("Mostrando resultados")
+print(res)
+
+# %%
 # for i in range (0,5):
-MLP = MLPRegressor(max_iter=1000, learning_rate_init=0.01, alpha=0.001, solver='sgd')
+MLP = MLPRegressor(hidden_layer_sizes=[16,16], learning_rate_init=0.01, alpha=7)
 MLP.fit(X_train, Y_train)
 
-print("Dentro de la muestra")
+print("\n\nDentro de la muestra")
 Y_pred = MLP.predict(X_train)
 ein = np.sqrt( mean_squared_error(Y_train, Y_pred) )
 print("\RMSE: ", ein)
