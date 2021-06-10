@@ -21,7 +21,7 @@ def readData(archivo):
 
 
 # Lectura de datos
-X, Y = readData('housing.data')
+X, Y = readData('data/housing.data')
 
 print("X:", X)
 print("Y:", Y)
