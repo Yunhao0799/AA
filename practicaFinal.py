@@ -14,6 +14,12 @@ from sklearn.model_selection import GridSearchCV
 from sklearn import linear_model
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.neural_network import MLPRegressor
+
+
+from sklearn import metrics
+from sklearn.model_selection import cross_val_score
+from sklearn.metrics import mean_squared_error
 
 pd.set_option('display.max_colwidth', None)
 # Funcion para leer los datos del dataset de regresion
@@ -151,3 +157,23 @@ r2 = r2_score(y_true=Y_test, y_pred=y_predicted)
 adj_r2 = (1 - (1 - r2) * ((X_test.shape[0] - 1) / (X_test.shape[0] - X_test.shape[1] - 1)))
 print("R2:",r2)
 print("R2 ajustado:",adj_r2)
+
+
+print("\n#################################################")
+print("##            Multilayer Perceptron            ##")
+print("#################################################")
+# for i in range (0,5):
+MLP = MLPRegressor(max_iter=1000, learning_rate_init=0.01, alpha=0.001, solver='sgd')
+MLP.fit(X_train, Y_train)
+
+Y_pred = MLP.predict(X_train)
+ein = np.sqrt( mean_squared_error(Y_train, Y_pred) )
+print("\nEin: ", ein)
+
+Y_pred = MLP.predict(X_test)
+eout = np.sqrt( mean_squared_error(Y_test, Y_pred) )
+print("Eout: ", eout)
+
+scores = np.sqrt( cross_val_score(MLP, X, Y, cv=5, scoring=metrics.make_scorer(mean_squared_error)) )
+print("Validacion: ", scores)
+print("Eval: ", np.mean(scores))
