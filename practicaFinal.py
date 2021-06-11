@@ -23,7 +23,11 @@ from sklearn import metrics
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import mean_squared_error
 
+
+pd.set_option('display.max_columns', None)
 pd.set_option('display.max_colwidth', None)
+
+
 # Funcion para leer los datos del dataset de regresion
 def readData(archivo):
     datos = pd.read_csv(archivo, delim_whitespace=True, header=None)
@@ -95,18 +99,21 @@ def hyper_parameter_tuning_mlp(x_train, y_train):
     # --------------------------- Hyper parameter Tuning ---------------------------
     models_parameters = {
         'MLP':{
-            'model': MLPRegressor(),
+            'model': MLPRegressor(solver='lbfgs', max_iter=500),
             'parameters': {
                 # Total de neuro
+                'hidden_layer_sizes' : [[14, 14], [14, 7], [7, 7], [4, 8], [8, 4], [7, 14]], 
                 # 'hidden_layer_sizes' : [[14, 14, 14], [14, 8, 4], [7, 7, 7], [4, 8, 14]],
-                'hidden_layer_sizes' : [[50, 50], [25,25] ,[18,18], [16, 16], [16, 8],[14, 14], [14, 7], [7, 7], [4, 8], [8, 4], [7, 14]],
-                'alpha':[9,8,7, 6, 5, 3, 2, 1, 0.1, 0.01, 0.0001],
-                'learning_rate_init':[0.001, 0.01]
+                # 'hidden_layer_sizes' : [[100, 100],[75, 75],[50, 50], [100, 75], [75, 100], [50, 75], [75, 50]], # , [25,25] ,[18,18], [16, 16], [16, 8],[14, 14], [14, 7], [7, 7], [4, 8], [8, 4], [7, 14]],
+                'alpha':[15, 14, 12, 11, 10,9,8,7, 6, 5, 3, 2, 1],
+                'learning_rate_init':[0.001, 0.01, 0.1]
+                
             }
         }
     } 
 
     scores = []
+    res = None
     for model_name, mp in models_parameters.items():
         clf = GridSearchCV(mp['model'], mp['parameters'], cv=5, return_train_score=False, n_jobs=-1, scoring='r2')
         clf.fit(x_train, y_train)
@@ -115,10 +122,12 @@ def hyper_parameter_tuning_mlp(x_train, y_train):
             'best_score' : clf.best_score_,
             'best_parameters': clf.best_params_
         })
+        res = clf.cv_results_
+        
 
 
     df = DataFrame(scores, columns=["model", "best_score", "best_parameters"])
-    return df
+    return df, res
 
 # Lectura de datos
 
@@ -134,34 +143,36 @@ X, Y= readData('data/housing.data')
 # PARTICION: 70% train, 30% test
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=2)
 
+
+print("Mostrando las primeras 5 muestras y las 5 últimas")
 d = np.insert(X_train, X_train.shape[1], Y_train, axis=1)
 nombre_columnas = ['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD', 'TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV']
-df = DataFrame(d, columns=nombre_columnas)
+ddd = DataFrame(d, columns=nombre_columnas)
 # Mostrando las 5 primeras y las 5 ultimas entradas
-print(df.head(5))
+print(ddd.head(5))
 print("[...]")
-print(df.tail(5))
+print(ddd.tail(5))
 
 # Correlation matrix
 
 df = pd.DataFrame(d, columns = nombre_columnas)
 correlation_matrix = df.corr()
-sns.heatmap(correlation_matrix, annot=False)
+sns.heatmap(correlation_matrix, annot=True, annot_kws={"size":5})
 plt.show()
 
 
-# Eliminar los outliers o datos extremos 
-print("Samples antes de eliminar outliers: ", X_train.shape[0])
-arr = np.append(X_train, Y_train.reshape(-1, 1), axis=1)
-df = DataFrame(arr)
-z_scores = stats.zscore(df)
-abs_z_scores = np.abs(z_scores)
-filtered_entries = (abs_z_scores < 3).all(axis=1)
-df = df[filtered_entries]
-data = np.array(df)
-X_train = data[:,:-1]
-Y_train = data[:,-1]
-print("Samples después de eliminar outliers: ", X_train.shape[0])
+# # Eliminar los outliers o datos extremos 
+# print("Samples antes de eliminar outliers: ", X_train.shape[0])
+# arr = np.append(X_train, Y_train.reshape(-1, 1), axis=1)
+# df = DataFrame(arr)
+# z_scores = stats.zscore(df)
+# abs_z_scores = np.abs(z_scores)
+# filtered_entries = (abs_z_scores < 3).all(axis=1)
+# df = df[filtered_entries]
+# data = np.array(df)
+# X_train = data[:,:-1]
+# Y_train = data[:,-1]
+# print("Samples después de eliminar outliers: ", X_train.shape[0])
 
 
 # Estandarizacion de los datos usando el StandardScaler
@@ -171,7 +182,7 @@ X_test = scaler.transform(X_test)
 
 
 
-# Búsqueda de los mejores parámetros para regresión lineal
+# Búsqueda de los mejores parámetros para regresión lineal
 df = hyper_parameter_tuning_lineal_model(x_train=X_train, y_train=Y_train)
 print("\n\n\n")
 print("Mostrando los mejores parámetros de regresión lineal, con y sin penalización")
@@ -217,19 +228,23 @@ print("##            Multilayer Perceptron            ##")
 print("#################################################")
 
 print("Búsqueda de los mejores hiperparámetros")
-res = hyper_parameter_tuning_mlp(X_train, Y_train)
+res, lolo = hyper_parameter_tuning_mlp(X_train, Y_train)
 print("Mostrando resultados")
 print(res)
 
 # %%
 # for i in range (0,5):
-MLP = MLPRegressor(hidden_layer_sizes=[16,16], learning_rate_init=0.01, alpha=7)
+aux = np.array(res['best_parameters'])
+print("Los parámetros escogidos son: ")
+print(aux[0])
+print("\n\n")
+MLP = MLPRegressor(solver='lbfgs', alpha=aux[0]['alpha'], hidden_layer_sizes=aux[0]['hidden_layer_sizes'], learning_rate_init=float(aux[0]['learning_rate_init']), max_iter=500)
 MLP.fit(X_train, Y_train)
 
 print("\n\nDentro de la muestra")
 Y_pred = MLP.predict(X_train)
 ein = np.sqrt( mean_squared_error(Y_train, Y_pred) )
-print("\RMSE: ", ein)
+print("RMSE: ", ein)
 r2 = r2_score(y_true=Y_train, y_pred=Y_pred)
 adj_r2 = (1 - (1 - r2) * ((X_test.shape[0] - 1) / (X_test.shape[0] - X_test.shape[1] - 1)))
 print("R2:",r2)
@@ -244,9 +259,11 @@ adj_r2 = (1 - (1 - r2) * ((X_test.shape[0] - 1) / (X_test.shape[0] - X_test.shap
 print("R2:",r2)
 print("R2 ajustado:",adj_r2)
 
-print("\n\n")
-scores = np.sqrt( abs(cross_val_score(MLP, X_train, Y_train, cv=5, scoring='neg_mean_squared_error') ) )
-print("Validacion: ", scores)
-print("Eval: ", np.mean(scores))
+
+
+# print("\n\n")
+# scores = np.sqrt( abs(cross_val_score(MLP, X_train, Y_train, cv=5, scoring='neg_mean_squared_error') ) )
+# print("Validacion: ", scores)
+# print("Eval: ", np.mean(scores))
 
 # %%
