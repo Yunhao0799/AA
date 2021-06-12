@@ -245,10 +245,20 @@ plt.show()
 
 
 # Estandarizacion de los datos usando el StandardScaler
+print("\nNormalizando los datos...\n")
 scaler = MinMaxScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
+
+print("Mostrando las primeras 5 muestras tras normalización")
+d = np.insert(X_train, X_train.shape[1], Y_train, axis=1)
+nombre_columnas = ['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD', 'TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV']
+ddd = DataFrame(d, columns=nombre_columnas)
+# Mostrando las 5 primeras y las 5 ultimas entradas
+print(ddd.head(5))
+print("[...]")
+print(ddd.tail(5))
 
 
 # Búsqueda de los mejores parámetros para regresión lineal
