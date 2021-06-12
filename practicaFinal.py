@@ -136,6 +136,7 @@ def hyper_parameter_tuning_rfr(x_train, y_train):
             'model': RandomForestRegressor(),
             'parameters': {
                 'n_estimators':[10,20,50,100,150,200,500],
+                'max_depth':[5,7,10,15,20,30,50]
             }
         }
     } 
@@ -390,7 +391,7 @@ print("Los parámetros escogidos son: ")
 print(aux[0])
 
 
-rfr = RandomForestRegressor(n_estimators=aux[0]['n_estimators'])
+rfr = RandomForestRegressor(n_estimators=aux[0]['n_estimators'], max_depth=aux[0]['max_depth'])
 rfr.fit(X_train, Y_train)
 
 print("\n\nDentro de la muestra")
