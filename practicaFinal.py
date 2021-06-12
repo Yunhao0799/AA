@@ -15,6 +15,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
 from sklearn import linear_model
 from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.neural_network import MLPRegressor
 
@@ -99,7 +100,7 @@ def hyper_parameter_tuning_mlp(x_train, y_train):
     # --------------------------- Hyper parameter Tuning ---------------------------
     models_parameters = {
         'MLP':{
-            'model': MLPRegressor(solver='lbfgs', max_iter=500),
+            'model': MLPRegressor(solver='lbfgs', max_iter=200, random_state=42),
             'parameters': {
                 # Total de neuro
                 'hidden_layer_sizes' : [[14, 14], [14, 7], [7, 7], [4, 8], [8, 4], [7, 14]], 
@@ -115,7 +116,7 @@ def hyper_parameter_tuning_mlp(x_train, y_train):
     scores = []
     res = None
     for model_name, mp in models_parameters.items():
-        clf = GridSearchCV(mp['model'], mp['parameters'], cv=5, return_train_score=False, n_jobs=-1, scoring='r2')
+        clf = GridSearchCV(mp['model'], mp['parameters'], cv=5, return_train_score=False, n_jobs=-1, scoring='neg_mean_squared_error')
         clf.fit(x_train, y_train)
         scores.append({
             'model' : model_name,
@@ -129,6 +130,47 @@ def hyper_parameter_tuning_mlp(x_train, y_train):
     df = DataFrame(scores, columns=["model", "best_score", "best_parameters"])
     return df, res
 
+def evolution_cv_score_with_iterations(X_train, Y_train):
+    models_parameters = {
+        'MLP':{
+            'model': MLPRegressor(solver='lbfgs', max_iter=200, random_state=42),
+            'parameters': {
+                # Total de neuro
+                'hidden_layer_sizes' : [[14, 14], [14, 7], [7, 7], [4, 8], [8, 4], [7, 14]], 
+                # 'hidden_layer_sizes' : [[14, 14, 14], [14, 8, 4], [7, 7, 7], [4, 8, 14]],
+                # 'hidden_layer_sizes' : [[100, 100],[75, 75],[50, 50], [100, 75], [75, 100], [50, 75], [75, 50]], # , [25,25] ,[18,18], [16, 16], [16, 8],[14, 14], [14, 7], [7, 7], [4, 8], [8, 4], [7, 14]],
+                'alpha':[15, 14, 12, 11, 10,9,8,7, 6, 5, 3, 2, 1],
+                'learning_rate_init':[0.001, 0.01, 0.1]
+                
+            }
+        }
+    } 
+
+    scores = []
+    res = None
+    i = 200
+    while i <= 2000:
+        for model_name, mp in models_parameters.items():
+            clf = GridSearchCV(mp['model'], mp['parameters'], cv=5, return_train_score=False, n_jobs=-1, scoring='neg_mean_squared_error')
+            clf.fit(X_train, Y_train)
+            scores.append({
+                'iterations' : i,
+                'best_score' : clf.best_score_
+            })
+            res = clf.cv_results_
+        i += 200
+
+    a = np.array(scores)
+    x_values = []
+    y_values = []
+    for i in range(10):
+        x_values.append(a[i]['iterations'])
+        y_values.append(a[i]['best_score'])
+
+    plt.figure()
+    plt.xticks(x_values, x_values)
+    plt.plot(x_values, y_values)
+    plt.show()
 # Lectura de datos
 
 X, Y= readData('data/housing.data')
@@ -176,7 +218,7 @@ plt.show()
 
 
 # Estandarizacion de los datos usando el StandardScaler
-scaler = StandardScaler()
+scaler = MinMaxScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
@@ -227,18 +269,56 @@ print("\n#################################################")
 print("##            Multilayer Perceptron            ##")
 print("#################################################")
 
+# evolution_cv_score_with_iterations(X_train, Y_train)
+
 print("Búsqueda de los mejores hiperparámetros")
 res, lolo = hyper_parameter_tuning_mlp(X_train, Y_train)
 print("Mostrando resultados")
 print(res)
 
 # %%
-# for i in range (0,5):
 aux = np.array(res['best_parameters'])
 print("Los parámetros escogidos son: ")
 print(aux[0])
-print("\n\n")
-MLP = MLPRegressor(solver='lbfgs', alpha=aux[0]['alpha'], hidden_layer_sizes=aux[0]['hidden_layer_sizes'], learning_rate_init=float(aux[0]['learning_rate_init']), max_iter=500)
+print("\n")
+
+
+# --------------------- Evolución del error in sample con las iteraciones ----
+
+# rmse_s = []
+# r2_s = []
+# adj_r2_s = []
+# for i in range(1, 1001, 50):
+#     MLP = MLPRegressor(solver='lbfgs', alpha=aux[0]['alpha'], hidden_layer_sizes=aux[0]['hidden_layer_sizes'], learning_rate_init=float(aux[0]['learning_rate_init']), max_iter=i, random_state=42)
+#     MLP.fit(X_train, Y_train)
+
+   
+#     Y_pred = MLP.predict(X_train)
+#     ein = np.sqrt( mean_squared_error(Y_train, Y_pred) )
+    
+#     r2 = r2_score(y_true=Y_train, y_pred=Y_pred)
+#     adj_r2 = (1 - (1 - r2) * ((X_test.shape[0] - 1) / (X_test.shape[0] - X_test.shape[1] - 1)))
+    
+
+
+#     rmse_s.append(ein)
+#     r2_s.append(r2)
+#     adj_r2_s.append(adj_r2)
+
+
+# plt.figure()
+# plt.plot(np.arange(1, 1001, 50), rmse_s)
+# plt.title("Evolución del error respecto a las iteraciones")
+# plt.xlabel("Iteraciones")
+# plt.ylabel("RMSE")
+# plt.show()
+
+# --------------------- ------------------------------------------- ----
+
+
+
+
+MLP = MLPRegressor(solver='lbfgs', alpha=aux[0]['alpha'], hidden_layer_sizes=aux[0]['hidden_layer_sizes'], learning_rate_init=float(aux[0]['learning_rate_init']), max_iter=200)
 MLP.fit(X_train, Y_train)
 
 print("\n\nDentro de la muestra")
