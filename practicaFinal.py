@@ -225,33 +225,7 @@ X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_
 
 
 
-pca = PCA()
-pca_result = pca.fit_transform(X_train)
 
-# Suma aumulada del ratio de la varianza 
-cum_pca_variance_ration = np.cumsum(pca.explained_variance_ratio_)
-
-plt.figure()
-plt.bar(np.arange(0, 13), pca.explained_variance_ratio_, alpha=0.5,
-        align='center', label='individual explained variance')
-
-plt.step(np.arange(0, 13), cum_pca_variance_ration,"b", where='mid',
-        label='cumulative explained variance')
-
-plt.hlines(0.99, 0, 13, colors="green", label="99% explained variance")
-
-plt.title("Varianza explicada")
-plt.legend()
-plt.show()
-
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-ax.scatter(pca_result[:,0], pca_result[:,1], Y_train)
-ax.set_xlabel("PCA 1")
-ax.set_ylabel("PCA 2")
-ax.set_zlabel("MDEV")
-ax.set_title('Mostrando las dos caractrísticas más representativas con PCA')
-plt.show()
 
 
 
@@ -299,6 +273,34 @@ print("\nNormalizando los datos...\n")
 scaler = MinMaxScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
+
+pca = PCA()
+pca_result = pca.fit_transform(X_train)
+
+# Suma aumulada del ratio de la varianza 
+cum_pca_variance_ration = np.cumsum(pca.explained_variance_ratio_)
+
+plt.figure()
+plt.bar(np.arange(0, 13), pca.explained_variance_ratio_, alpha=0.5,
+        align='center', label='individual explained variance')
+
+plt.step(np.arange(0, 13), cum_pca_variance_ration,"b", where='mid',
+        label='cumulative explained variance')
+
+plt.hlines(0.99, 0, 13, colors="green", label="99% explained variance")
+
+plt.title("Varianza explicada")
+plt.legend()
+plt.show()
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(pca_result[:,0], pca_result[:,1], Y_train)
+ax.set_xlabel("PCA 1")
+ax.set_ylabel("PCA 2")
+ax.set_zlabel("MDEV")
+ax.set_title('Mostrando las dos caractrísticas más representativas con PCA')
+plt.show()
 
 
 print("Mostrando las primeras 5 muestras tras normalización")
@@ -479,17 +481,17 @@ print("#################################################")
 
 
 print("Búsqueda de los mejores hiperparámetros")
-res, lolo = hyper_parameter_tuning_rfr(X_train, Y_train)
+res2, lolo = hyper_parameter_tuning_rfr(X_train, Y_train)
 print("Mostrando resultados")
-print(res)
+print(res2)
 
 # %%
-aux = np.array(res['best_parameters'])
+aux2 = np.array(res2['best_parameters'])
 print("Los parámetros escogidos son: ")
-print(aux[0])
+print(aux2[0])
 
 
-rfr = RandomForestRegressor(n_estimators=aux[0]['n_estimators'], max_depth=aux[0]['max_depth'])
+rfr = RandomForestRegressor(n_estimators=aux2[0]['n_estimators'], max_depth=aux2[0]['max_depth'])
 rfr.fit(X_train, Y_train)
 
 print("\n\nDentro de la muestra")
