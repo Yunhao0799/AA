@@ -3,10 +3,10 @@ TRABAJO FINAL
 Nombre Estudiantes: Victor Diaz Bustos y Yunhao Lin Pan
 """
 #  %% 
-def warn(*args, **kwargs):
-    pass
+
+
 import warnings
-warnings.warn = warn
+warnings.filterwarnings('ignore')
 
 #  %%
 import numpy as np
