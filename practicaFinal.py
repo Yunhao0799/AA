@@ -2,6 +2,12 @@
 TRABAJO FINAL
 Nombre Estudiantes: Victor Diaz Bustos y Yunhao Lin Pan
 """
+#  %% 
+def warn(*args, **kwargs):
+    pass
+import warnings
+warnings.warn = warn
+
 #  %%
 import numpy as np
 import pandas as pd
@@ -200,6 +206,7 @@ def evolution_cv_score_with_iterations(X_train, Y_train):
     plt.show()
 
 def show_data_distribution(data_frame):
+    print("\nDistribución de los datos")
     fig = plt.figure(figsize = (15,20))
     ax = fig.gca()
     data_frame.hist(ax = ax, bins=50)
@@ -207,12 +214,6 @@ def show_data_distribution(data_frame):
 
 X, Y= readData('data/housing.data')
 
-# %%
-
-
-# %%
-# print("X:", X)
-# print("Y:", Y)
 
 # PARTICION: 70% train, 30% test
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=2)
@@ -230,14 +231,16 @@ print(ddd.tail(5))
 print("\nEstadística de los datos de entrenamiento")
 print(ddd.describe())
 
-print("\nDistribución de los datos")
+
+
 show_data_distribution(ddd)
 
 # Correlation matrix
-print("\nMatriz de correlaciones")
+plt.figure()
 df = pd.DataFrame(d, columns = nombre_columnas)
 correlation_matrix = df.corr()
 sns.heatmap(correlation_matrix, annot=True, annot_kws={"size":5})
+plt.title("Matriz de correlaciones")
 plt.show()
 
 
@@ -254,7 +257,7 @@ plt.show()
 # Y_train = data[:,-1]
 # print("Samples después de eliminar outliers: ", X_train.shape[0])
 
-
+# %%
 # Estandarizacion de los datos usando el StandardScaler
 print("\nNormalizando los datos...\n")
 scaler = MinMaxScaler()
