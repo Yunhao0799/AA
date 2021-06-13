@@ -224,18 +224,35 @@ X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_
 
 
 
-# PCA con train antes de normalizacion
-pca = PCA(n_components=2)
-pca.fit(X_train)
-transformada = pca.transform(X_train)
+
+pca = PCA()
+pca_result = pca.fit_transform(X_train)
+
+# Suma aumulada del ratio de la varianza 
+cum_pca_variance_ration = np.cumsum(pca.explained_variance_ratio_)
+
+plt.figure()
+plt.bar(np.arange(0, 13), pca.explained_variance_ratio_, alpha=0.5,
+        align='center', label='individual explained variance')
+
+plt.step(np.arange(0, 13), cum_pca_variance_ration,"b", where='mid',
+        label='cumulative explained variance')
+
+plt.hlines(0.99, 0, 13, colors="green", label="99% explained variance")
+
+plt.title("Varianza explicada")
+plt.legend()
+plt.show()
+
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-ax.scatter(transformada[:,0], transformada[:,1], Y_train)
+ax.scatter(pca_result[:,0], pca_result[:,1], Y_train)
 ax.set_xlabel("PCA 1")
 ax.set_ylabel("PCA 2")
 ax.set_zlabel("MDEV")
-ax.set_title('PCA con train antes de normalizacion')
+ax.set_title('Mostrando las dos caractrísticas más representativas con PCA')
 plt.show()
+
 
 
 print("\nMostrando las primeras 5 muestras y las 5 últimas")
@@ -293,32 +310,52 @@ print(ddd.head(5))
 print("[...]")
 print(ddd.tail(5))
 
+# # %%
+# pca = PCA()
+# pca_result = pca.fit_transform(X_train)
+# pca_result_test = pca.transform(X_test)
+
+# # Suma aumulada del ratio de la varianza 
+# cum_pca_variance_ration = np.cumsum(pca.explained_variance_ratio_)
+
+# # Encontrar el numero de características necesarias para lograr el 99% de 
+# # explicatividad
+# var_min = 0.99
+# numero_features = np.argwhere(cum_pca_variance_ration>var_min)[0]
+# numero_features += 1
+
+# # Seleccionamos los numero_features primeros
+# x_train_original = X_train
+# X_train = np.array(pca_result[:, :numero_features[0]])
+# x_test_original = X_test
+# X_test = np.array(pca_result_test[:, :numero_features[0]])
 
 
-# PCA con train antes de normalizacion
-pca = PCA(n_components=2)
-pca.fit(X_train)
-transformada = pca.transform(X_train)
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-ax.scatter(transformada[:,0], transformada[:,1], Y_train)
-ax.set_xlabel("PCA 1")
-ax.set_ylabel("PCA 2")
-ax.set_zlabel("MDEV")
-ax.set_title('PCA con train tras normalizacion')
-plt.show()
+
+# # PCA con train antes de normalizacion
+# pca = PCA(n_components=2)
+# pca.fit(X_train)
+# transformada = pca.transform(X_train)
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection='3d')
+# ax.scatter(transformada[:,0], transformada[:,1], Y_train)
+# ax.set_xlabel("PCA 1")
+# ax.set_ylabel("PCA 2")
+# ax.set_zlabel("MDEV")
+# ax.set_title('PCA con train tras normalizacion')
+# plt.show()
 
 
 
 
-
+# %%
 # Búsqueda de los mejores parámetros para regresión lineal
 df = hyper_parameter_tuning_lineal_model(x_train=X_train, y_train=Y_train)
 print("\n\n\n")
 print("Mostrando los mejores parámetros de regresión lineal, con y sin penalización")
 print(df)
 
-# %%
+
 # El modelo ridge funciona ligeramente mejor
 clf = linear_model.Ridge(max_iter=10000, alpha=2, fit_intercept=True, solver='lsqr', tol=0.001)
 clf.fit(X_train, Y_train)
@@ -472,3 +509,5 @@ r2 = r2_score(y_true=Y_test, y_pred=Y_pred)
 adj_r2 = (1 - (1 - r2) * ((X_test.shape[0] - 1) / (X_test.shape[0] - X_test.shape[1] - 1)))
 print("R2:",r2)
 print("R2 ajustado:",adj_r2)
+
+# %%
