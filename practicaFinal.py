@@ -10,6 +10,7 @@ from scipy.sparse.construct import random
 from scipy import stats
 import seaborn as sns
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
@@ -24,6 +25,8 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn import metrics
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import mean_squared_error
+
+from sklearn.decomposition import PCA
 
 
 pd.set_option('display.max_columns', None)
@@ -218,6 +221,19 @@ X, Y= readData('data/housing.data')
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=2)
 
 
+
+
+# PCA con train antes de normalizacion
+pca = PCA(n_components=2)
+pca.fit(X_train)
+transformada = pca.transform(X_train)
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+plt.scatter(transformada[:,0], transformada[:,1], Y_train)
+plt.title('PCA con train antes de normalizacion')
+plt.show()
+
+
 print("\nMostrando las primeras 5 muestras y las 5 últimas")
 d = np.insert(X_train, X_train.shape[1], Y_train, axis=1)
 nombre_columnas = ['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD', 'TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV']
@@ -270,6 +286,18 @@ ddd = DataFrame(d, columns=nombre_columnas)
 print(ddd.head(5))
 print("[...]")
 print(ddd.tail(5))
+
+
+
+# PCA con train antes de normalizacion
+pca = PCA(n_components=2)
+pca.fit(X_train)
+transformada = pca.transform(X_train)
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+plt.scatter(transformada[:,0], transformada[:,1], Y_train)
+plt.title('PCA con train tras normalizacion')
+plt.show()
 
 
 # Búsqueda de los mejores parámetros para regresión lineal
@@ -432,4 +460,3 @@ r2 = r2_score(y_true=Y_test, y_pred=Y_pred)
 adj_r2 = (1 - (1 - r2) * ((X_test.shape[0] - 1) / (X_test.shape[0] - X_test.shape[1] - 1)))
 print("R2:",r2)
 print("R2 ajustado:",adj_r2)
-
