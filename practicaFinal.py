@@ -229,8 +229,11 @@ pca.fit(X_train)
 transformada = pca.transform(X_train)
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-plt.scatter(transformada[:,0], transformada[:,1], Y_train)
-plt.title('PCA con train antes de normalizacion')
+ax.scatter(transformada[:,0], transformada[:,1], Y_train)
+ax.set_xlabel("PCA 1")
+ax.set_ylabel("PCA 2")
+ax.set_zlabel("MDEV")
+ax.set_title('PCA con train antes de normalizacion')
 plt.show()
 
 
@@ -295,9 +298,15 @@ pca.fit(X_train)
 transformada = pca.transform(X_train)
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-plt.scatter(transformada[:,0], transformada[:,1], Y_train)
-plt.title('PCA con train tras normalizacion')
+ax.scatter(transformada[:,0], transformada[:,1], Y_train)
+ax.set_xlabel("PCA 1")
+ax.set_ylabel("PCA 2")
+ax.set_zlabel("MDEV")
+ax.set_title('PCA con train tras normalizacion')
 plt.show()
+
+
+
 
 
 # Búsqueda de los mejores parámetros para regresión lineal
