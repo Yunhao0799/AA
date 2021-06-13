@@ -84,7 +84,7 @@ def hyper_parameter_tuning_lineal_model(x_train, y_train):
 
     scores = []
     for model_name, mp in models_parameters.items():
-        clf = GridSearchCV(mp['model'], mp['parameters'], cv=5, return_train_score=False, n_jobs=-1, scoring='neg_mean_squared_error')
+        clf = GridSearchCV(mp['model'], mp['parameters'], cv=5, return_train_score=False, n_jobs=-1, scoring='neg_root_mean_squared_error')
         clf.fit(x_train, y_train)
         scores.append({
             'model' : model_name,
@@ -116,7 +116,7 @@ def hyper_parameter_tuning_mlp(x_train, y_train):
     scores = []
     res = None
     for model_name, mp in models_parameters.items():
-        clf = GridSearchCV(mp['model'], mp['parameters'], cv=5, return_train_score=False, n_jobs=-1, scoring='neg_mean_squared_error')
+        clf = GridSearchCV(mp['model'], mp['parameters'], cv=5, return_train_score=False, n_jobs=-1, scoring='neg_root_mean_squared_error')
         clf.fit(x_train, y_train)
         scores.append({
             'model' : model_name,
@@ -144,7 +144,7 @@ def hyper_parameter_tuning_rfr(x_train, y_train):
     scores = []
     res = None
     for model_name, mp in models_parameters.items():
-        clf = GridSearchCV(mp['model'], mp['parameters'], cv=5, return_train_score=False, n_jobs=-1, scoring='neg_mean_squared_error')
+        clf = GridSearchCV(mp['model'], mp['parameters'], cv=5, return_train_score=False, n_jobs=-1, scoring='neg_root_mean_squared_error')
         clf.fit(x_train, y_train)
         scores.append({
             'model' : model_name,
@@ -178,7 +178,7 @@ def evolution_cv_score_with_iterations(X_train, Y_train):
     i = 200
     while i <= 2000:
         for model_name, mp in models_parameters.items():
-            clf = GridSearchCV(mp['model'], mp['parameters'], cv=5, return_train_score=False, n_jobs=-1, scoring='neg_mean_squared_error')
+            clf = GridSearchCV(mp['model'], mp['parameters'], cv=5, return_train_score=False, n_jobs=-1, scoring='neg_root_mean_squared_error')
             clf.fit(X_train, Y_train)
             scores.append({
                 'iterations' : i,
@@ -198,6 +198,11 @@ def evolution_cv_score_with_iterations(X_train, Y_train):
     plt.xticks(x_values, x_values)
     plt.plot(x_values, y_values)
     plt.show()
+
+def show_data_distribution(data_frame):
+    fig = plt.figure(figsize = (15,20))
+    ax = fig.gca()
+    data_frame.hist(ax = ax, bins=50)
 # Lectura de datos
 
 X, Y= readData('data/housing.data')
@@ -213,7 +218,7 @@ X, Y= readData('data/housing.data')
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=2)
 
 
-print("Mostrando las primeras 5 muestras y las 5 últimas")
+print("\nMostrando las primeras 5 muestras y las 5 últimas")
 d = np.insert(X_train, X_train.shape[1], Y_train, axis=1)
 nombre_columnas = ['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD', 'TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV']
 ddd = DataFrame(d, columns=nombre_columnas)
@@ -222,8 +227,14 @@ print(ddd.head(5))
 print("[...]")
 print(ddd.tail(5))
 
-# Correlation matrix
+print("\nEstadística de los datos de entrenamiento")
+print(ddd.describe())
 
+print("\nDistribución de los datos")
+show_data_distribution(ddd)
+
+# Correlation matrix
+print("\nMatriz de correlaciones")
 df = pd.DataFrame(d, columns = nombre_columnas)
 correlation_matrix = df.corr()
 sns.heatmap(correlation_matrix, annot=True, annot_kws={"size":5})
