@@ -266,12 +266,16 @@ print(ddd.head(5))
 print("[...]")
 print(ddd.tail(5))
 
+input("----Pulse para continuar----")
+
 print("\nEstadística de los datos de entrenamiento")
 print(ddd.describe())
 
 
 
 show_data_distribution(ddd)
+
+input("----Pulse para continuar----")
 
 # Correlation matrix
 plt.figure()
@@ -280,6 +284,8 @@ correlation_matrix = df.corr()
 sns.heatmap(correlation_matrix, annot=True, annot_kws={"size":5})
 plt.title("Matriz de correlaciones")
 plt.show()
+
+input("----Pulse para continuar----")
 
 
 # # Eliminar los outliers o datos extremos 
@@ -329,6 +335,7 @@ ax.set_ylabel("PCA 2")
 ax.set_zlabel("MDEV")
 ax.set_title('Mostrando las dos caractrísticas más representativas con PCA')
 plt.show()
+input("----Pulse para continuar----")
 
 
 print("Mostrando las primeras 5 muestras tras normalización")
@@ -339,6 +346,7 @@ ddd = DataFrame(d, columns=nombre_columnas)
 print(ddd.head(5))
 print("[...]")
 print(ddd.tail(5))
+input("----Pulse para continuar----")
 
 # # %%
 # pca = PCA()
@@ -384,6 +392,7 @@ df = hyper_parameter_tuning_lineal_model(x_train=X_train, y_train=Y_train)
 print("\n\n\n")
 print("Mostrando los mejores parámetros de regresión lineal, con y sin penalización")
 print(df)
+input("----Pulse para continuar----")
 
 
 # El modelo ridge funciona ligeramente mejor
@@ -413,7 +422,7 @@ r2 = r2_score(y_true=Y_test, y_pred=y_predicted)
 adj_r2 = (1 - (1 - r2) * ((X_test.shape[0] - 1) / (X_test.shape[0] - X_test.shape[1] - 1)))
 print("R2:",r2)
 print("R2 ajustado:",adj_r2)
-
+input("----Pulse para continuar----")
 
 
 
@@ -431,11 +440,13 @@ res, lolo = hyper_parameter_tuning_mlp(X_train, Y_train)
 print("Mostrando resultados")
 print(res)
 
+
 # %%
 aux = np.array(res['best_parameters'])
 print("Los parámetros escogidos son: ")
 print(aux[0])
 print("\n")
+input("----Pulse para continuar----")
 
 
 # --------------------- Evolución del error in sample con las iteraciones ----
@@ -493,7 +504,7 @@ r2 = r2_score(y_true=Y_test, y_pred=Y_pred)
 adj_r2 = (1 - (1 - r2) * ((X_test.shape[0] - 1) / (X_test.shape[0] - X_test.shape[1] - 1)))
 print("R2:",r2)
 print("R2 ajustado:",adj_r2)
-
+input("----Pulse para continuar----")
 
 
 # print("\n\n")
@@ -517,6 +528,7 @@ print(res2)
 aux2 = np.array(res2['best_parameters'])
 print("Los parámetros escogidos son: ")
 print(aux2[0])
+input("----Pulse para continuar----")
 
 
 rfr = RandomForestRegressor(n_estimators=aux2[0]['n_estimators'], max_depth=aux2[0]['max_depth'])
@@ -539,7 +551,7 @@ r2 = r2_score(y_true=Y_test, y_pred=Y_pred)
 adj_r2 = (1 - (1 - r2) * ((X_test.shape[0] - 1) / (X_test.shape[0] - X_test.shape[1] - 1)))
 print("R2:",r2)
 print("R2 ajustado:",adj_r2)
-
+input("----Pulse para continuar----")
 # %%
 
 
@@ -559,7 +571,7 @@ aux = np.array(res['best_parameters'])
 print("Los parámetros escogidos son: ")
 print(aux[0])
 
-
+input("----Pulse para continuar----")
 gbr = GradientBoostingRegressor(learning_rate=aux[0]['learning_rate'], n_estimators=aux[0]['n_estimators'])
 gbr.fit(X_train, Y_train)
 
@@ -580,5 +592,5 @@ r2 = r2_score(y_true=Y_test, y_pred=Y_pred)
 adj_r2 = (1 - (1 - r2) * ((X_test.shape[0] - 1) / (X_test.shape[0] - X_test.shape[1] - 1)))
 print("R2:",r2)
 print("R2 ajustado:",adj_r2)
-
+input("----Pulse para continuar----")
 # %%
