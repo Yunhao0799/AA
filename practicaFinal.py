@@ -433,6 +433,8 @@ print("\n#################################################")
 print("##            Multilayer Perceptron            ##")
 print("#################################################")
 
+# Descomentar la línea siguiente si se quiere ver cómo evoluciona la 
+# puntuación de cv con distintos limites de iteraciones
 # evolution_cv_score_with_iterations(X_train, Y_train)
 
 print("Búsqueda de los mejores hiperparámetros")
