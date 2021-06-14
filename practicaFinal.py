@@ -26,6 +26,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import GradientBoostingRegressor
 
 
 from sklearn import metrics
@@ -146,6 +147,33 @@ def hyper_parameter_tuning_rfr(x_train, y_train):
             'parameters': {
                 'n_estimators':[10,20,50,100,150,200,500],
                 'max_depth':[5,7,10,15,20,30,50]
+            }
+        }
+    } 
+
+    scores = []
+    res = None
+    for model_name, mp in models_parameters.items():
+        clf = GridSearchCV(mp['model'], mp['parameters'], cv=5, return_train_score=False, n_jobs=-1, scoring='neg_root_mean_squared_error')
+        clf.fit(x_train, y_train)
+        scores.append({
+            'model' : model_name,
+            'best_score' : clf.best_score_,
+            'best_parameters': clf.best_params_
+        })
+        res = clf.cv_results_
+        
+    df = DataFrame(scores, columns=["model", "best_score", "best_parameters"])
+    return df, res
+
+def hyper_parameter_tuning_gbr(x_train, y_train):
+    # --------------------------- Hyper parameter Tuning ---------------------------
+    models_parameters = {
+        'rfr':{
+            'model': GradientBoostingRegressor(),
+            'parameters': {
+                'n_estimators':[50,100,150,200],
+                'learning_rate':[0.07,0.85,0.1,0.2,0.3,0.5]
             }
         }
     } 
@@ -503,6 +531,47 @@ print("R2 ajustado:",adj_r2)
 
 print("\nFuera de la muestra")
 Y_pred = rfr.predict(X_test)
+eout = np.sqrt( mean_squared_error(Y_test, Y_pred) )
+print("RMSE: ", eout)
+r2 = r2_score(y_true=Y_test, y_pred=Y_pred)
+adj_r2 = (1 - (1 - r2) * ((X_test.shape[0] - 1) / (X_test.shape[0] - X_test.shape[1] - 1)))
+print("R2:",r2)
+print("R2 ajustado:",adj_r2)
+
+# %%
+
+
+
+print("\n#################################################")
+print("##                  Boosting                   ##")
+print("#################################################")
+
+
+print("Búsqueda de los mejores hiperparámetros")
+res, lolo = hyper_parameter_tuning_gbr(X_train, Y_train)
+print("Mostrando resultados")
+print(res)
+
+# %%
+aux = np.array(res['best_parameters'])
+print("Los parámetros escogidos son: ")
+print(aux[0])
+
+
+gbr = GradientBoostingRegressor(learning_rate=aux[0]['learning_rate'], n_estimators=aux[0]['n_estimators'])
+gbr.fit(X_train, Y_train)
+
+print("\n\nDentro de la muestra")
+Y_pred = gbr.predict(X_train)
+ein = np.sqrt( mean_squared_error(Y_train, Y_pred) )
+print("RMSE: ", ein)
+r2 = r2_score(y_true=Y_train, y_pred=Y_pred)
+adj_r2 = (1 - (1 - r2) * ((X_test.shape[0] - 1) / (X_test.shape[0] - X_test.shape[1] - 1)))
+print("R2:",r2)
+print("R2 ajustado:",adj_r2)
+
+print("\nFuera de la muestra")
+Y_pred = gbr.predict(X_test)
 eout = np.sqrt( mean_squared_error(Y_test, Y_pred) )
 print("RMSE: ", eout)
 r2 = r2_score(y_true=Y_test, y_pred=Y_pred)
