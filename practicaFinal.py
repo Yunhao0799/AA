@@ -327,14 +327,6 @@ plt.title("Varianza explicada")
 plt.legend()
 plt.show()
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-ax.scatter(pca_result[:,0], pca_result[:,1], Y_train)
-ax.set_xlabel("PCA 1")
-ax.set_ylabel("PCA 2")
-ax.set_zlabel("MDEV")
-ax.set_title('Mostrando las dos características más representativas con PCA')
-plt.show()
 input("----Pulse para continuar----")
 
 
