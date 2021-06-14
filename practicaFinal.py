@@ -333,7 +333,7 @@ ax.scatter(pca_result[:,0], pca_result[:,1], Y_train)
 ax.set_xlabel("PCA 1")
 ax.set_ylabel("PCA 2")
 ax.set_zlabel("MDEV")
-ax.set_title('Mostrando las dos caractrísticas más representativas con PCA')
+ax.set_title('Mostrando las dos características más representativas con PCA')
 plt.show()
 input("----Pulse para continuar----")
 
@@ -594,5 +594,8 @@ r2 = r2_score(y_true=Y_test, y_pred=Y_pred)
 adj_r2 = (1 - (1 - r2) * ((X_test.shape[0] - 1) / (X_test.shape[0] - X_test.shape[1] - 1)))
 print("R2:",r2)
 print("R2 ajustado:",adj_r2)
+
 input("----Pulse para continuar----")
+# %%
+
 # %%
